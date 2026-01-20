@@ -1,7 +1,8 @@
+import { PrismaClient } from '@prisma/client';
 import express from 'express';
-import mysql from 'mysql2/promise';
 
 const app = express();
+const prisma = new PrismaClient();
 const port = 3000;
 
 // Tradução de dados json para que o express consiga interpretá-los
@@ -15,13 +16,6 @@ app.get('/', (req, res) => {
     });
 });
 
-// Criação da conexão do db
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password
-})
-
 // Inicialização e informação do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
@@ -33,13 +27,33 @@ app.listen(port, () => {
 
 // Simulção de um banco de dados
 
-const users = [
-    { id: 1, nome: "Vinicius", tecnologia: "React" },
-    { id: 2, nome: "Matheus", tecnologia: "Backend" }
-];
-
 // Rota para listar todos os usuários (GET)
 
-app.get('/users', (req, res) => {
-    res.json(users);
+app.get('/users', async (req, res) => {
+
+    // Exemplo de uso: http://localhost:3000/users?tech=React
+    const { tech } = req.query; // filtra os dados depois do ? na url
+
+    let filtro = {} // WHERE e começa vazio
+
+    if (tech) {
+        // Se o usuário enviou "?tech=...", adicionamos a regra
+
+        filtro = {
+            tecnologia: tech
+        };
+    }
+
+    const listaDoBanco = await prisma.user.findMany({
+        where: filtro
+    });
+
+    const listaFormatada = listaDoBanco.map(usuario => {
+        return {
+            nome_visual: usuario.nome,
+            stack: usuario.tecnologia
+        };
+    });
+
+    res.json(listaFormatada);
 });
