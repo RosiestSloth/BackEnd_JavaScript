@@ -32,7 +32,7 @@ app.listen(port, () => {
 app.get('/users', async (req, res) => {
 
     // Exemplo de uso: http://localhost:3000/users?tech=React
-    const { tech } = req.query; // filtra os dados depois do ? na url
+    const { tech, id, name } = req.query; // filtra os dados depois do ? na url
 
     let filtro = {} // WHERE e começa vazio
 
@@ -42,18 +42,73 @@ app.get('/users', async (req, res) => {
         filtro = {
             tecnologia: tech
         };
+    } else if (id) {
+        // Filtro para o id
+
+        filtro = {
+            id: parseInt(id)
+        }
+    } else if (name) {
+        // Filtro para o nome
+
+        filtro = {
+            nome: name
+        }
     }
 
-    const listaDoBanco = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
         where: filtro
     });
 
-    const listaFormatada = listaDoBanco.map(usuario => {
+    const listaFormatada = users.map(usuario => {
         return {
-            nome_visual: usuario.nome,
-            stack: usuario.tecnologia
+            nome: usuario.nome,
+            stack: usuario.tecnologia,
+            email: usuario.email,
+            idade: usuario.age
         };
     });
 
-    res.json(listaFormatada);
+    res.status(200).json(listaFormatada);
+});
+
+app.post('/users', async (req, res) => {
+
+    // await para esperar o db responder
+    await prisma.user.create({
+        data: {
+            email: req.body.email, // requisição que pega os dados do body com o identificador de "email" do json
+            nome: req.body.nome,
+            tecnologia: req.body.tecnologia,
+            age: req.body.age
+        }
+    });
+
+    res.status(201).json(req.body)
+});
+
+app.put('/users/:id', async (req, res) => {
+
+    await prisma.user.update({
+        where: {
+            id: parseInt(req.params.id)
+        },
+        data: {
+            email: req.body.email,
+            nome: req.body.nome,
+            tecnologia: req.body.tecnologia,
+            age: req.body.age
+        }
+    });
+
+    res.status(200).json({ message: "Usuário atualizado com sucesso" });
+});
+
+app.delete('/users/:id', async (req, res) => {
+    await prisma.user.delete({
+        where: {
+            id: parseInt(req.params.id)
+        }
+    });
+    res.status(200).json({ message: 'Usuário deletado com sucesso!'})
 });
