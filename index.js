@@ -64,8 +64,7 @@ app.get('/users', async (req, res) => {
 
     const listaFormatada = users.map(usuario => {
         return {
-            nome: usuario.nome,
-            stack: usuario.tecnologia,
+            name: usuario.name,
             email: usuario.email,
             idade: usuario.age
         };
@@ -79,10 +78,10 @@ app.post('/users', async (req, res) => {
     // await para esperar o db responder
     await prisma.user.create({
         data: {
-            email: req.body.email, // requisição que pega os dados do body com o identificador de "email" do json
             nome: req.body.nome,
-            tecnologia: req.body.tecnologia,
-            age: req.body.age
+            email: req.body.email, // requisição que pega os dados do body com o identificador de "email" do json
+            age: req.body.age,
+            password: req.body.password
         }
     });
 
@@ -96,10 +95,10 @@ app.put('/users/:id', async (req, res) => {
             id: parseInt(req.params.id)
         },
         data: {
-            email: req.body.email,
             nome: req.body.nome,
-            tecnologia: req.body.tecnologia,
-            age: req.body.age
+            email: req.body.email,
+            age: req.body.age,
+            password: req.body.password
         }
     });
 

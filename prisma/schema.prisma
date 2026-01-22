@@ -12,13 +12,14 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 // O nosso modelo (representa a tabela)
 model User {
   id         Int    @id @default(autoincrement()) @map("_id")
-  nome       String
-  tecnologia String
+  name       String
   email      String @unique
   age        Int
+  password   String 
 }
