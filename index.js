@@ -54,7 +54,7 @@ app.get('/users', async (req, res) => {
         // Filtro para o nome
 
         filtro = {
-            nome: name
+            name: name
         }
     }
 
@@ -64,9 +64,10 @@ app.get('/users', async (req, res) => {
 
     const listaFormatada = users.map(usuario => {
         return {
+            id: usuario.id,
             name: usuario.name,
             email: usuario.email,
-            idade: usuario.age
+            age: usuario.age
         };
     });
 
@@ -78,7 +79,7 @@ app.post('/users', async (req, res) => {
     // await para esperar o db responder
     await prisma.user.create({
         data: {
-            nome: req.body.nome,
+            name: req.body.name,
             email: req.body.email, // requisição que pega os dados do body com o identificador de "email" do json
             age: req.body.age,
             password: req.body.password
@@ -95,7 +96,7 @@ app.put('/users/:id', async (req, res) => {
             id: parseInt(req.params.id)
         },
         data: {
-            nome: req.body.nome,
+            name: req.body.name,
             email: req.body.email,
             age: req.body.age,
             password: req.body.password
@@ -106,6 +107,7 @@ app.put('/users/:id', async (req, res) => {
 });
 
 app.delete('/users/:id', async (req, res) => {
+
     await prisma.user.delete({
         where: {
             id: parseInt(req.params.id)
